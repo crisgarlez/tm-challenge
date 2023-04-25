@@ -1,0 +1,67 @@
+version: "3.9"
+services:
+  service:
+    image: service-dev:1.0.0
+    container_name: service_dev
+    build:
+      context: ./service/
+      target: development
+      dockerfile: Dockerfile
+    command: start:dev
+    restart: unless-stopped
+    volumes:
+      - ./service/:/usr/src/app
+    environment:
+      - APP_VERSION=1.0.0
+    ports:
+      - 3000:3000
+    networks:
+      - tiendanet
+
+  store:
+    build:
+      context: ./store
+      dockerfile: Dockerfile
+    command: >
+      sh -c "chown -R 0777 var/ pub/ generated/ 
+      && sleep 1m
+      && php bin/magento setup:install --base-url=http://localhost/ --db-host=mysql --db-name=magento --db-user=root --db-password=root --admin-firstname=Cristhian --admin-lastname=Garcia --admin-email=admin@example.com --admin-user=admin --admin-password=!Prueba1234 --use-rewrites=1 --backend-frontname=admin --search-engine=elasticsearch7 --elasticsearch-host=elasticsearch --elasticsearch-port=9200 
+      && php bin/magento module:enable Crisgarlez_TiendaChallenge 
+      && php bin/magento setup:db-declaration:generate-whitelist --module-name=Crisgarlez_TiendaChallenge
+      && php bin/magento setup:di:compile 
+      && php bin/magento setup:upgrade
+      && chmod -R 0777 var/ pub/ generated/ 
+      && service apache2 restart 
+      && tail -F anything"
+    environment:
+      - COMPOSER_ALLOW_SUPERUSER=1
+    networks:
+      - tiendanet
+    ports:
+      - "80:80"
+    depends_on:
+      - mysql
+      - elasticsearch
+  mysql:
+    image: mysql:8.0
+    networks:
+      - tiendanet
+    ports:
+      - "3306:3306"
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_DATABASE: "magento"
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.11.0
+    environment:
+      - xpack.security.enabled=false
+      - "discovery.type=single-node"
+    networks:
+      - tiendanet
+    ports:
+      - 9200:9200
+
+networks:
+  tiendanet:
+    driver: bridge
