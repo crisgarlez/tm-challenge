@@ -5,12 +5,13 @@ services:
     container_name: service_dev
     build:
       context: ./service/
-      target: development
+      target: production
+      # target: development
       dockerfile: Dockerfile
-    command: start:dev
+    # command: start:dev
     restart: unless-stopped
-    volumes:
-      - ./service/:/usr/src/app
+    # volumes:
+    #   - ./service/:/usr/src/app
     environment:
       - APP_VERSION=1.0.0
     ports:
@@ -30,6 +31,7 @@ services:
       && php bin/magento setup:db-declaration:generate-whitelist --module-name=Crisgarlez_TiendaChallenge
       && php bin/magento setup:di:compile 
       && php bin/magento setup:upgrade
+      && php app/code/Crisgarlez/TiendaChallenge/addProducts.php 
       && chmod -R 0777 var/ pub/ generated/ 
       && service apache2 restart 
       && tail -F anything"

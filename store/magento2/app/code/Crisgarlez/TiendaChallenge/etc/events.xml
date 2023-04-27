@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <event name="checkout_cart_product_add_after">
+        <observer name="set_custom_price_to_product" instance="Crisgarlez\TiendaChallenge\Observer\CheckoutCartProductAddAfterObserver" />
+    </event>
+    <event name="checkout_cart_product_update_after">
+        <observer name="update_custom_price_to_product" instance="Crisgarlez\TiendaChallenge\Observer\CheckoutCartProductAddAfterObserver" />
+    </event>
+</config>

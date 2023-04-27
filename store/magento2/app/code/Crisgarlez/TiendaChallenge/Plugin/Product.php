@@ -5,16 +5,13 @@ namespace Crisgarlez\TiendaChallenge\Plugin;
 class Product {
 
     private $zendClient;
-    protected $_logger;
 
-    public function __construct(\Zend\Http\Client $zendClient, \Psr\Log\LoggerInterface $logger) {
+    public function __construct(\Zend\Http\Client $zendClient) {
         $this->zendClient = $zendClient;
-        $this->_logger = $logger;
     }
 
     public function afterGetPrice(\Magento\Catalog\Model\Product $subject, $result)
     {
-        $this->_logger->debug('!!!afterGetPrice!!!');
         $url = 'http://service:3000/getAllSkuOffers/' . $subject->getSku();
 
         try {
@@ -33,12 +30,10 @@ class Product {
                 $availableOffers = array_filter($data->offers, function($offer){ 
                     return $offer->stock > 0;
                 });
-                $newPrice = array_reduce($availableOffers, array($this, 'getBestCost'));
-                $result = $newPrice;
+                $result = array_reduce($availableOffers, array($this, 'getBestCost'));
             }
         } catch (\Zend\Http\Exception\RuntimeException $runtimeException) {
             // ERROR
-            $this->_logger->debug($runtimeException->getMessage());
         }
 
         return $result;
@@ -46,11 +41,7 @@ class Product {
     }
 
     private function getBestCost($carry, $item) {
-        if(!isset($carry)) {
-            $carry = $item->shipping_price + $item->price;
-        } else if ($carry > ($item->shipping_price + $item->price)){
-            $carry = $item->shipping_price + $item->price;
-        }
-        return $carry;
+        $totalCost = $item->shipping_price + $item->price;
+        return (!isset($carry) || $carry > $totalCost) ? $totalCost : $carry;
     }
 }

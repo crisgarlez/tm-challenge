@@ -12,7 +12,6 @@ export class AppController {
 
   @Get('getAllSkuOffers/:sku')
   async find(@Param('sku') sku: string) {
-    console.log('AppController->find:sku:', sku);
     return await this.appService.getOffersBySku(sku);
   }
 }
