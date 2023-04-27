@@ -32,3 +32,13 @@ Al ejecutar el comando sucederá lo siguiente
 2. Buscar el producto 'Producto'
 3. Realizar la compra
 4. Un cron se ejecutará diariamente a las 00:00 `(0 0 * * *)`
+
+## Docs
+
+### Servicio REST
+
+el proyecto del servicio se encuentra desarrollado con Nest.js en la ruta `./service`
+
+### Store
+
+el proyecto de la tienda se encuentra desarrollado con Magento2 en la ruta `./store/magento2` , las modificaciones a la tienda se hicieron mediante un Módulo en la ruta `./store/magento2/app/code/Crisgarlez/TiendaChallenge`
